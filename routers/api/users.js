@@ -175,6 +175,8 @@ router.post(
     async (req, res) => {
 
         const { name, company, stops } = req.body;
+        let k = stops.split(",")
+        console.log(k)
         try {
 
             let user = await Buses.findOne({ name });
@@ -188,7 +190,7 @@ router.post(
                 user = new Buses({
                     name,
                     company,
-                    stops
+                    stops:k
 
                 });
 
