@@ -3,6 +3,7 @@ const app = express()
 const path = require('path')
 
 const connectDB = require('./config/db')
+const Buses = require('./models/Buses')
 connectDB()
 
 app.use(express.json({ extended: false }))
@@ -11,6 +12,17 @@ app.use(express.json({ extended: false }))
 
 app.use('/api/users', require('./routers/api/users'))
 app.use('/api/auth', require('./routers/api/auth'))
+app.use('/api/deletebus',require('./routers/api/users'))
+
+
+// app.get('/kbus/:id',async(req,res)=>{
+//     res.send(req.params.id)
+// })
+
+
+
+
+
 
 
 

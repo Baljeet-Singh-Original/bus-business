@@ -111,7 +111,7 @@ export const addBusData = (FormData, history) => async dispatch => {
 
 export const removeBus = id => async dispatch => {
     try {
-        const res = await axios.delete(`/api/users/buses/${id}`)
+        const res = await axios.delete(`/api/deletebus/${id}`)
 
         dispatch({
             type: UPDATE_PROFILE,
