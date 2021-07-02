@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const axios = require('axios');
 const bcrypt = require('bcryptjs');
 const config = require('config')
 const jwt = require('jsonwebtoken')
@@ -9,12 +8,13 @@ const { check, validationResult } = require('express-validator');
 const User = require('../../models/Users');
 const Buses = require('../../models/Buses');
 const { JsonWebTokenError } = require('jsonwebtoken');
+const { findOneAndUpdate, findOne, findByIdAndDelete, findOneAndDelete } = require('../../models/Users');
 
 // get current user profile
 
 router.get('/me', auth, async (req, res) => {
     try {
-        const profile = await (await User.findOne({ user: req.body.id }))
+        const profile = await (await User.findById(req.user.id))
 
 
         if (!profile) {
@@ -147,11 +147,12 @@ router.put(
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
-
+        const { name, company, stops } = req.body;
+        let k = stops.split(",")
+        let stops_=k.map(x=>x.trim())
         try {
-            const profile = await User.findOne({ user: req.body.id });
-
-            profile.buses.unshift(req.body);
+            const profile = await User.findById(req.user.id);
+            profile.buses.unshift({name,company,stops:stops_});
             await profile.save();
 
             res.json(profile);
@@ -176,7 +177,7 @@ router.post(
 
         const { name, company, stops } = req.body;
         let k = stops.split(",")
-        console.log(k)
+        let stops_=k.map(x=>x.trim())
         try {
 
             let user = await Buses.findOne({ name });
@@ -190,7 +191,7 @@ router.post(
                 user = new Buses({
                     name,
                     company,
-                    stops:k
+                    stops:stops_
 
                 });
 
@@ -211,31 +212,37 @@ router.post(
     }
 );
 
+router.get('/roshan',auth,async(req,res)=>{
+const k = await User.findOneAndUpdate(req.user.id,{"$pull":{"buses":{"_id":"60db028f4f437f4649395aed"}}},{safe:true},(err,obj)=>{
+    console.log(obj)
+})    
+})
 
 
 
-// @route    DELETE api/profile/experience/:bus_id
+// @route    DELETE api/profile/:bus_id
 // @desc     Delete Buses
 // @access   Private
 
-router.delete('/buses/:bus_id', auth, async (req, res) => {
-    try {
-        const foundProfile = await User.findOne({ user: req.body.id });
+router.delete('/:busid',auth,async(req,res)=>{
+// const l =await Buses.findByIdAndDelete(req.params.busid)
+try{
 
-        foundProfile.buses = foundProfile.buses.filter(
-            (bus) => bus._id.toString() !== req.params.bus_id
-        );
-
-        await Promise.all([
-            Buses.findOneAndRemove({ _id: req.params.bus_id })
-        ]);
-        await foundProfile.save();
-        return res.status(200).json(foundProfile)
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ msg: 'Server error' });
+    const k = await User.findOneAndUpdate(req.user.id,{"$pull":{"buses":{"_id":req.params.busid}}},{safe:true},async(err,obj)=>{
+    const buses_ = obj.buses
+    for (i of buses_){
+        if (i._id==req.params.busid){
+            await Buses.findOneAndDelete({name:i.name})
+            return res.send("deleted successfully")
+        }
     }
-});
+    })
+    
 
+}catch(err){
+    console.error(err)
+    res.status(400).send("server error b")
+
+}});
 
 module.exports = router;

@@ -8,6 +8,7 @@ const Profile = ({ getCurrentProfile, removeBus, auth: { user } }) => {
     useEffect(() => {
         getCurrentProfile()
     }, [getCurrentProfile])
+
     return (
         <Fragment>
             <div className="profile-grid my-1">
@@ -34,7 +35,7 @@ const Profile = ({ getCurrentProfile, removeBus, auth: { user } }) => {
                                         <div className="card">
                                             <div className="box">
                                                 <div className="content">
-                                                    <h2>01</h2>
+                                                    <h2>asdf</h2>
                                                     <h3>{bus.name}</h3>
                                                     <h3>{bus.company}</h3>
                                                     <span> <h1>Stops:- </h1> <strong> [{bus.stops}] </strong> </span>
